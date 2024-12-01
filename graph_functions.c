@@ -89,17 +89,30 @@ Node *createNode(int vertex)
  */
 void displayAdjacencyList(Graph *graph)
 {
-    createAdjacencyList(graph);
-
     printf("Adjacency List:\n");
     for (int i = 0; i < graph->numVertices; i++) {
         printf("Vertex %d: ", i + 1);
         Node *temp = graph->adjList[i];
-        while (temp) {
-            printf("-> %d (%d) ", temp->vertex + 1, weights[i][temp->vertex]);
-            temp = temp->next;
+        // Reverse the order of printing to match the desired output
+        if (temp == NULL) {
+            printf("NULL\n");
+        } else {
+            // Create a temporary array to reverse the order
+            Node* nodes[MAX_VERTICES];
+            int count = 0;
+            
+            // Collect nodes
+            while (temp) {
+                nodes[count++] = temp;
+                temp = temp->next;
+            }
+            
+            // Print in reverse order
+            for (int j = count - 1; j >= 0; j--) {
+                printf("-> %d (%d) ", nodes[j]->vertex + 1, weights[i][nodes[j]->vertex]);
+            }
+            printf("NULL\n");
         }
-        printf("NULL\n");
     }
 }
 
@@ -109,14 +122,18 @@ void displayAdjacencyList(Graph *graph)
  */
 void createAdjacencyList(Graph *graph)
 {
-
+    for (int i = 0; i < graph->numVertices; i++) {
+        Node *current = graph->adjList[i];
+        while (current) {
+            Node *temp = current;
+            current = current->next;
+            free(temp);  // Free each existing node
+        }
+        graph->adjList[i] = NULL;  // Reset the list pointer
+    }
 
     memset(weights, 0, sizeof(weights));
 
-    for (int i = 0; i < graph->numVertices; i++) {
-        graph->adjList[i] = NULL;  
-    }
-    
     for (int i = 0; i < graph->numVertices; i++) {
         for (int j = 0; j < graph->numVertices; j++) {
             if (graph->adjMatrix[i][j] != 0) {  
